@@ -3,11 +3,13 @@ package DBConn
 import (
 	astrotypes "Astro/types"
 	"database/sql"
+	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func OpenDBConnection() *sql.DB {
+
 	db, err := sql.Open("mysql", Cfg.FormatDSN())
 	if err != nil {
 		panic(err.Error())
@@ -18,15 +20,21 @@ func OpenDBConnection() *sql.DB {
 
 func InitializeDB() {
 
-	_db := OpenDBConnection()
+	_db, err := sql.Open("mysql", "root:astropass@tcp(127.0.0.1:3306)/")
 	defer _db.Close()
 
-	_, err := _db.Exec("USE AstroRankings")
+	_, err = _db.Exec("CREATE database AstroRankings")
+	if err != nil {
+		fmt.Printf("Database already created\n\n")
+		return
+	}
+
+	_, err = _db.Exec("USE AstroRankings")
 	if err != nil {
 		panic(err)
 	}
 
-	_, err = _db.Exec("CREATE TABLE userTime ( id varchar(32), username varchar(32) , timeInSeconds integer, map integer);")
+	_, err = _db.Exec("CREATE TABLE userRanking ( id varchar(32), username varchar(32) , timeInSeconds integer, map integer);")
 	if err != nil {
 		panic(err)
 	}
@@ -42,7 +50,7 @@ func AddRanking(tobj astrotypes.TimeObj) {
 		panic(err)
 	}
 
-	_, err = _db.Exec("INSERT INTO userTime ( id, username, timeInSeconds, map)  VALUES (?, ?, ?, ?);",
+	_, err = _db.Exec("INSERT INTO userRanking ( id, username, timeInSeconds, map)  VALUES (?, ?, ?, ?);",
 		tobj.Id, tobj.Username, tobj.TimeInSeconds, tobj.Map)
 
 	if err != nil {
@@ -60,7 +68,7 @@ func GetRankings() []astrotypes.TimeObj {
 		panic(err)
 	}
 
-	results, err := _db.Query("SELECT * FROM userTime")
+	results, err := _db.Query("SELECT * FROM userRanking")
 	if err != nil {
 		panic(err)
 	}
@@ -92,7 +100,7 @@ func GetSpecificRanking(id string) astrotypes.TimeObj {
 		panic(err)
 	}
 
-	results, err := _db.Query("SELECT * FROM userTime WHERE id=?", id)
+	results, err := _db.Query("SELECT * FROM userRanking WHERE id=?", id)
 	if err != nil {
 		panic(err)
 	}
@@ -124,7 +132,7 @@ func PatchRankingTime(id string, tobj astrotypes.TimeObj) {
 		panic(err)
 	}
 
-	_, err = _db.Exec("UPDATE userTime SET timeInSeconds=? WHERE id=?", tobj.TimeInSeconds, id)
+	_, err = _db.Exec("UPDATE userRanking SET timeInSeconds=? WHERE id=?", tobj.TimeInSeconds, id)
 
 	if err != nil {
 		panic(err)
@@ -141,7 +149,7 @@ func DeleteRanking(id string) {
 		panic(err)
 	}
 
-	_, err = _db.Exec("DELETE FROM userTime WHERE id=?", id)
+	_, err = _db.Exec("DELETE FROM userRanking WHERE id=?", id)
 
 	if err != nil {
 		panic(err)

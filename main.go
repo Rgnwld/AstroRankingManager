@@ -1,21 +1,16 @@
 package main
 
 import (
+	DBConn "Astro/database"
 	AstroRoutes "Astro/routes"
-	astrotypes "Astro/types"
 
 	"github.com/gin-gonic/gin"
 )
 
-var testobj = astrotypes.TimeObj{
-	Id:            "avbc",
-	Username:      "Regis",
-	TimeInSeconds: 1,
-	Map:           1,
-}
-
 func main() {
 	router := gin.Default()
+
+	DBConn.InitializeDB()
 
 	//region Routes
 	AstroRoutes.GetRanking(router)         //Get "/ranking"
