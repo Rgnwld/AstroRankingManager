@@ -3,6 +3,7 @@
 ### This ranking is still in early development and doesnt have any kind of security
 This is only for study and early tests in Astro development.
 Please dont use it in production.
+* NOTE: Working on "JWT" system 
 
 ### How to start up this manager:
 - Need Docker installed in your computer. 
