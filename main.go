@@ -13,11 +13,8 @@ func main() {
 	DBConn.InitializeDB()
 
 	//region Routes
-	AstroRoutes.GetRanking(router)         //Get "/ranking"
-	AstroRoutes.GetSpecificRanking(router) //Get "/ranking/:id"
-	AstroRoutes.AddRanking(router)         //Post "/ranking" + TimeObj
-	AstroRoutes.PatchRanking(router)       //Patch "/ranking/:id" + TimeObj
-	AstroRoutes.DeleteRanking(router)      //Patch "/ranking/:id"
+	AstroRoutes.RankingRoutes(router)
+	AstroRoutes.TokenRoutes(router)
 	//endregion
 
 	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
