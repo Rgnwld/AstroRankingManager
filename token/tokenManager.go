@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	AstroTypes "Astro/types"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -18,21 +20,8 @@ var users = map[string]string{
 	"user2": "password2",
 }
 
-// Create a struct to read the username and password from the request body
-type Credentials struct {
-	Password string `json:"password"`
-	Username string `json:"username"`
-}
-
-// Create a struct that will be encoded to a JWT.
-// We add jwt.RegisteredClaims as an embedded type, to provide fields like expiry time
-type Claims struct {
-	Username string `json:"username"`
-	jwt.RegisteredClaims
-}
-
 // Create the GetToken handler
-func GetToken(creds Credentials) string {
+func GetToken(creds AstroTypes.Credentials) string {
 
 	expectedPassword, ok := users[creds.Username]
 
@@ -43,7 +32,7 @@ func GetToken(creds Credentials) string {
 
 	expirationTime := time.Now().Add(5 * time.Minute)
 
-	claims := &Claims{
+	claims := &AstroTypes.Claims{
 		Username: creds.Username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
@@ -67,7 +56,7 @@ func AuthenticatedAction() func(c *gin.Context) {
 		tknStr := c.Query("token")
 
 		// Initialize a new instance of `Claims`
-		claims := &Claims{}
+		claims := &AstroTypes.Claims{}
 
 		tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (any, error) {
 			return JWTKey, nil

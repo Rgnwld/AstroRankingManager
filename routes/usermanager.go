@@ -1,5 +1,0 @@
-package AstroRoutes
-
-func test(){
-	
-}

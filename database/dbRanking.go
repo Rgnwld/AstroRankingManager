@@ -4,12 +4,11 @@ import (
 	astrotypes "Astro/types"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func OpenDBConnection() *sql.DB {
+func OpenRankingDBConnection() *sql.DB {
 
 	db, err := sql.Open("mysql", Cfg.FormatDSN())
 	if err != nil {
@@ -19,31 +18,9 @@ func OpenDBConnection() *sql.DB {
 	return db
 }
 
-func InitializeDB() {
-
-	_db, err := sql.Open("mysql", "root:astropass@tcp(127.0.0.1:3306)/")
-	defer _db.Close()
-
-	_, err = _db.Exec("CREATE database AstroRankings")
-	if err != nil {
-		fmt.Printf("Database already created\n\n")
-		return
-	}
-
-	_, err = _db.Exec("USE AstroRankings")
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = _db.Exec("CREATE TABLE userRanking ( id varchar(32), username varchar(32) , timeInSeconds integer, map integer);")
-	if err != nil {
-		panic(err)
-	}
-}
-
 func AddRanking(tobj astrotypes.UserTimeObj) {
 
-	_db := OpenDBConnection()
+	_db := OpenUserDBConnection()
 	defer _db.Close()
 
 	_, err := _db.Exec("USE AstroRankings")
@@ -61,7 +38,7 @@ func AddRanking(tobj astrotypes.UserTimeObj) {
 
 func GetRankings() []astrotypes.UserTimeObj {
 
-	_db := OpenDBConnection()
+	_db := OpenUserDBConnection()
 	defer _db.Close()
 
 	_, err := _db.Exec("USE AstroRankings")
@@ -93,7 +70,7 @@ func GetRankings() []astrotypes.UserTimeObj {
 
 func GetSpecificRanking(id string) astrotypes.UserTimeObj {
 
-	_db := OpenDBConnection()
+	_db := OpenUserDBConnection()
 	defer _db.Close()
 
 	_, err := _db.Exec("USE AstroRankings")
@@ -127,7 +104,7 @@ func PatchRankingTime(id string, tobj astrotypes.TimeObj) (astrotypes.UserTimeOb
 
 	var timeobj astrotypes.UserTimeObj
 
-	_db := OpenDBConnection()
+	_db := OpenUserDBConnection()
 	defer _db.Close()
 
 	_, err := _db.Exec("USE AstroRankings")
@@ -169,7 +146,7 @@ func DeleteRanking(id string) (astrotypes.UserTimeObj, error) {
 
 	var timeobj astrotypes.UserTimeObj
 
-	_db := OpenDBConnection()
+	_db := OpenUserDBConnection()
 	defer _db.Close()
 
 	_, err := _db.Exec("USE AstroRankings")

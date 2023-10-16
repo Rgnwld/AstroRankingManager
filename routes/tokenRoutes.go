@@ -2,7 +2,7 @@ package AstroRoutes
 
 import (
 	Token "Astro/token"
-	"fmt"
+	AstroTypes "Astro/types"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,27 +12,6 @@ import (
 func TokenRoutes(router *gin.RouterGroup) {
 
 	router.GET("/token", TestToken)
-	router.POST("/token", LogIn)
-}
-
-func LogIn(c *gin.Context) {
-	test := fmt.Sprint(c.Request.Body)
-	fmt.Println(test)
-
-	var cred Token.Credentials
-
-	if err := c.BindJSON(&cred); err != nil {
-		return
-	}
-
-	// tostr := fmt.Sprintf("%+v", cred)
-	// println(tostr)
-
-	token := Token.GetToken(cred)
-
-	c.IndentedJSON(http.StatusOK, gin.H{
-		"token": token,
-	})
 }
 
 func TestToken(c *gin.Context) {
@@ -40,7 +19,7 @@ func TestToken(c *gin.Context) {
 	tknStr := c.Query("token")
 
 	// Initialize a new instance of `Claims`
-	claims := &Token.Claims{}
+	claims := &AstroTypes.Claims{}
 
 	// Parse the JWT string and store the result in `claims`.
 	// Note that we are passing the key in this method as well. This method will return an error

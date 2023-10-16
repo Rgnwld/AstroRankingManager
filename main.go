@@ -21,6 +21,7 @@ func main() {
 	//region Routes
 	//Public
 	AstroRoutes.TokenRoutes(authRoutes)
+	AstroRoutes.UserRoutes(authRoutes)
 
 	//Authenticated
 	AstroRoutes.RankingRoutes(authenticatedRoutes)

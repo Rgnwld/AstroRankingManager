@@ -18,5 +18,8 @@ Please dont use it in production.
 
 ### Patch Notes
 - 16/10: 
-    - Started to implement JWT system. Sign In already working
+    - Working password encrypt.
+    - Persistent User Data (uuid + hash password). 
+- 15/10: 
+    - Started to implement JWT system. Sign In already working (Not saved in db)
     - Added authentication for some routes (ex: Ranking)
