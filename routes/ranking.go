@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RankingRoutes(router *gin.Engine) {
+func RankingRoutes(router *gin.RouterGroup) {
 
 	router.GET("/ranking", mapAllRankings)
 	router.GET("/ranking/:id", mapOneRanking)
@@ -38,7 +38,7 @@ func mapOneRanking(c *gin.Context) {
 
 // region POST
 func newRanking(c *gin.Context) {
-	var newRank AstroTypes.TimeObj
+	var newRank AstroTypes.UserTimeObj
 
 	if err := c.BindJSON(&newRank); err != nil {
 		return
@@ -46,7 +46,10 @@ func newRanking(c *gin.Context) {
 
 	DBConn.AddRanking(newRank)
 
-	c.IndentedJSON(http.StatusCreated, newRank)
+	c.IndentedJSON(http.StatusCreated, gin.H{
+		"message": "ranking was setted",
+		"object":  newRank,
+	})
 }
 
 //endregion
@@ -58,12 +61,19 @@ func updateRanking(c *gin.Context) {
 	var updateRank AstroTypes.TimeObj
 
 	if err := c.BindJSON(&updateRank); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "Something went wrong. \nPlease, check your request."})
 		return
 	}
 
-	DBConn.PatchRankingTime(id, updateRank)
+	result, err := DBConn.PatchRankingTime(id, updateRank)
 
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Time Updated to: " + strconv.Itoa(updateRank.TimeInSeconds)})
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		c.IndentedJSON(http.StatusOK, gin.H{"message": "ID not founded"})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Time Updated from: " + strconv.Itoa(result.TimeInSeconds) + " to: " + strconv.Itoa(updateRank.TimeInSeconds)})
 }
 
 //endregion
@@ -73,9 +83,15 @@ func removeRanking(c *gin.Context) {
 
 	id := c.Param("id")
 
-	DBConn.DeleteRanking(id)
+	result, err := DBConn.DeleteRanking(id)
 
-	c.IndentedJSON(http.StatusOK, gin.H{"message": id + " was removed"})
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		c.IndentedJSON(http.StatusOK, gin.H{"message": "ID not founded"})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, gin.H{"message": result.Id + " was removed"})
 }
 
 //endregion

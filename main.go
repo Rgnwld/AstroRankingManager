@@ -3,6 +3,7 @@ package main
 import (
 	DBConn "Astro/database"
 	AstroRoutes "Astro/routes"
+	Token "Astro/token"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,9 +13,17 @@ func main() {
 
 	DBConn.InitializeDB()
 
+	authRoutes := router.Group("/auth") //Routes for Authentication
+
+	authenticatedRoutes := router.Group("/v1") // Authenticated Route
+	authenticatedRoutes.Use(Token.AuthenticatedAction())
+
 	//region Routes
-	AstroRoutes.RankingRoutes(router)
-	AstroRoutes.TokenRoutes(router)
+	//Public
+	AstroRoutes.TokenRoutes(authRoutes)
+
+	//Authenticated
+	AstroRoutes.RankingRoutes(authenticatedRoutes)
 	//endregion
 
 	router.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

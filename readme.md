@@ -3,8 +3,8 @@
 ### This ranking is still in early development and doesnt have any kind of security
 This is only for study and early tests in Astro development.
 Please dont use it in production.
-* NOTE: Working on ["JWT"](https://jwt.io/) system
-* NOTE: Future login using Google / Facebook / Apple
+- NOTE: Working on ["JWT"](https://jwt.io/) system
+
 
 ### How to start up this manager:
 - Need Docker installed in your computer. 
@@ -14,3 +14,9 @@ Please dont use it in production.
     - Make sure that port 3306 is free to use!
 - To run the project, you still need the [go compiler](https://go.dev/learn/)
 - Now that everything is setup, just run ```go run ./```
+
+
+### Patch Notes
+- 16/10: 
+    - Started to implement JWT system. Sign In already working
+    - Added authentication for some routes (ex: Ranking)

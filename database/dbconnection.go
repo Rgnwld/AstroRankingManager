@@ -3,6 +3,7 @@ package DBConn
 import (
 	astrotypes "Astro/types"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -40,7 +41,7 @@ func InitializeDB() {
 	}
 }
 
-func AddRanking(tobj astrotypes.TimeObj) {
+func AddRanking(tobj astrotypes.UserTimeObj) {
 
 	_db := OpenDBConnection()
 	defer _db.Close()
@@ -58,7 +59,7 @@ func AddRanking(tobj astrotypes.TimeObj) {
 	}
 }
 
-func GetRankings() []astrotypes.TimeObj {
+func GetRankings() []astrotypes.UserTimeObj {
 
 	_db := OpenDBConnection()
 	defer _db.Close()
@@ -73,10 +74,10 @@ func GetRankings() []astrotypes.TimeObj {
 		panic(err)
 	}
 
-	var times []astrotypes.TimeObj
+	var times []astrotypes.UserTimeObj
 
 	for results.Next() {
-		var userTimes astrotypes.TimeObj
+		var userTimes astrotypes.UserTimeObj
 
 		err = results.Scan(&userTimes.Id, &userTimes.Username, &userTimes.TimeInSeconds, &userTimes.Map)
 
@@ -90,7 +91,7 @@ func GetRankings() []astrotypes.TimeObj {
 	return times
 }
 
-func GetSpecificRanking(id string) astrotypes.TimeObj {
+func GetSpecificRanking(id string) astrotypes.UserTimeObj {
 
 	_db := OpenDBConnection()
 	defer _db.Close()
@@ -105,10 +106,10 @@ func GetSpecificRanking(id string) astrotypes.TimeObj {
 		panic(err)
 	}
 
-	var times astrotypes.TimeObj
+	var times astrotypes.UserTimeObj
 
 	for results.Next() {
-		var userTimes astrotypes.TimeObj
+		var userTimes astrotypes.UserTimeObj
 
 		err = results.Scan(&userTimes.Id, &userTimes.Username, &userTimes.TimeInSeconds, &userTimes.Map)
 
@@ -122,7 +123,9 @@ func GetSpecificRanking(id string) astrotypes.TimeObj {
 	return times
 }
 
-func PatchRankingTime(id string, tobj astrotypes.TimeObj) {
+func PatchRankingTime(id string, tobj astrotypes.TimeObj) (astrotypes.UserTimeObj, error) {
+
+	var timeobj astrotypes.UserTimeObj
 
 	_db := OpenDBConnection()
 	defer _db.Close()
@@ -130,6 +133,27 @@ func PatchRankingTime(id string, tobj astrotypes.TimeObj) {
 	_, err := _db.Exec("USE AstroRankings")
 	if err != nil {
 		panic(err)
+	}
+
+	results, err := _db.Query("SELECT * FROM userRanking WHERE id=?", id)
+	if err != nil {
+		panic(err)
+	}
+
+	if !results.NextResultSet() {
+		return astrotypes.UserTimeObj{}, errors.New("ID not founded")
+	}
+
+	for results.Next() {
+		var userobj astrotypes.UserTimeObj
+
+		err = results.Scan(&userobj.Id, &userobj.Username, &userobj.TimeInSeconds, &userobj.Map)
+
+		if err != nil {
+			panic(err.Error())
+		}
+
+		timeobj = userobj
 	}
 
 	_, err = _db.Exec("UPDATE userRanking SET timeInSeconds=? WHERE id=?", tobj.TimeInSeconds, id)
@@ -137,9 +161,13 @@ func PatchRankingTime(id string, tobj astrotypes.TimeObj) {
 	if err != nil {
 		panic(err)
 	}
+
+	return timeobj, nil
 }
 
-func DeleteRanking(id string) {
+func DeleteRanking(id string) (astrotypes.UserTimeObj, error) {
+
+	var timeobj astrotypes.UserTimeObj
 
 	_db := OpenDBConnection()
 	defer _db.Close()
@@ -149,9 +177,32 @@ func DeleteRanking(id string) {
 		panic(err)
 	}
 
+	results, err := _db.Query("SELECT * FROM userRanking WHERE id=?", id)
+	if err != nil {
+		panic(err)
+	}
+
+	if !results.NextResultSet() {
+		return astrotypes.UserTimeObj{}, errors.New("ID not founded")
+	}
+
+	for results.Next() {
+		var userobj astrotypes.UserTimeObj
+
+		err = results.Scan(&userobj.Id, &userobj.Username, &userobj.TimeInSeconds, &userobj.Map)
+
+		if err != nil {
+			panic(err.Error())
+		}
+
+		timeobj = userobj
+	}
+
 	_, err = _db.Exec("DELETE FROM userRanking WHERE id=?", id)
 
 	if err != nil {
 		panic(err)
 	}
+
+	return timeobj, nil
 }

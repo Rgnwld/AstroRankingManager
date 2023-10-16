@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 // Create the JWT key used to create the signature
-var jwtKey = []byte("my_secret_key")
+var JWTKey = []byte("my_secret_key")
 
 // For simplification, we're storing the users information as an in-memory map in our code
 var users = map[string]string{
@@ -52,7 +53,7 @@ func GetToken(creds Credentials) string {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString(jwtKey)
+	tokenString, err := token.SignedString(JWTKey)
 	if err != nil {
 		fmt.Println(http.StatusInternalServerError)
 		return ""
@@ -61,31 +62,36 @@ func GetToken(creds Credentials) string {
 	return tokenString
 }
 
-func AuthenticateToken(tknStr string) bool {
-	// Get the JWT string from the cookie
+func AuthenticatedAction() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		tknStr := c.Query("token")
 
-	// Initialize a new instance of `Claims`
-	claims := &Claims{}
+		// Initialize a new instance of `Claims`
+		claims := &Claims{}
 
-	// Parse the JWT string and store the result in `claims`.
-	// Note that we are passing the key in this method as well. This method will return an error
-	// if the token is invalid (if it has expired according to the expiry time we set on sign in),
-	// or if the signature does not match
-	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (any, error) {
-		return jwtKey, nil
-	})
+		tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (any, error) {
+			return JWTKey, nil
+		})
 
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			fmt.Println(http.StatusUnauthorized)
-			return false
+		if err != nil {
+			if err == jwt.ErrSignatureInvalid {
+				c.IndentedJSON(http.StatusUnauthorized, gin.H{
+					"response": "Err Signature Invalid",
+				})
+				c.Abort()
+			}
+			c.IndentedJSON(http.StatusBadRequest, gin.H{
+				"response": "Bad Request",
+			})
+			c.Abort()
 		}
-		fmt.Println(http.StatusBadRequest)
-		return false
+
+		if !tkn.Valid {
+			c.IndentedJSON(http.StatusUnauthorized, gin.H{
+				"response": "Not Authorized",
+			})
+			c.Abort()
+		}
 	}
-	if !tkn.Valid {
-		fmt.Println(http.StatusUnauthorized)
-		return false
-	}
-	return false
+
 }
