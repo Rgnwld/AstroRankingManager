@@ -79,11 +79,13 @@ func AuthenticatedAction() func(c *gin.Context) {
 					"response": "Err Signature Invalid",
 				})
 				c.Abort()
+				return
 			}
 			c.IndentedJSON(http.StatusBadRequest, gin.H{
 				"response": "Bad Request",
 			})
 			c.Abort()
+			return
 		}
 
 		if !tkn.Valid {
@@ -91,6 +93,7 @@ func AuthenticatedAction() func(c *gin.Context) {
 				"response": "Not Authorized",
 			})
 			c.Abort()
+			return
 		}
 	}
 

@@ -10,7 +10,7 @@ Please dont use it in production.
 - Need Docker installed in your computer. 
     - If you dont have Docker installed, you can get it here [Docker](https://www.docker.com/products/docker-desktop/)
 - ARM uses mysql to persist ranking data. On this repo you can use a DockerFile to create a container with base configurations to use it.
-    - To start the Dockerfile, run in this folder ```docker build -t astromanager . ; docker run -dp 127.0.0.1:3306:3306```
+    - To start the Dockerfile, run in this folder ```docker build -t astromanager . ; docker run -dp 127.0.0.1:3306:3306 astromanager```
     - Make sure that port 3306 is free to use!
 - To run the project, you still need the [go compiler](https://go.dev/learn/)
 - Now that everything is setup, just run ```go run ./```

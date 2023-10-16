@@ -69,7 +69,7 @@ func GetRankings() []astrotypes.UserTimeObj {
 		panic(err)
 	}
 
-	results, err := _db.Query("SELECT * FROM userRanking")
+	results, err := _db.Query("SELECT * FROM userRanking ORDER BY timeInSeconds ASC")
 	if err != nil {
 		panic(err)
 	}
