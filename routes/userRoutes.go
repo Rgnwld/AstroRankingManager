@@ -18,14 +18,17 @@ func UserRoutes(router *gin.RouterGroup) {
 }
 
 func logIn(c *gin.Context) {
-
 	var cred AstroTypes.Credentials
 
 	if err := c.BindJSON(&cred); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{
+			"message": "Bad Request",
+		})
 		return
 	}
 
 	dbuser, err := DBConn.GetUser(cred.Username)
+
 	if err != nil {
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{
 			"message": "user not founded",
