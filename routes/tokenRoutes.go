@@ -2,7 +2,6 @@ package AstroRoutes
 
 import (
 	Token "Astro/token"
-	AstroTypes "Astro/types"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -18,16 +17,7 @@ func TestToken(c *gin.Context) {
 
 	tknStr := c.Query("token")
 
-	// Initialize a new instance of `Claims`
-	claims := &AstroTypes.Claims{}
-
-	// Parse the JWT string and store the result in `claims`.
-	// Note that we are passing the key in this method as well. This method will return an error
-	// if the token is invalid (if it has expired according to the expiry time we set on sign in),
-	// or if the signature does not match
-	tkn, err := jwt.ParseWithClaims(tknStr, claims, func(token *jwt.Token) (any, error) {
-		return Token.JWTKey, nil
-	})
+	tkn, claims, err := Token.ParseToken(tknStr)
 
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {

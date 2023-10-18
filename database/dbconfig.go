@@ -31,7 +31,7 @@ func InitializeDB() {
 		panic(err)
 	}
 
-	_, err = _db.Exec("CREATE TABLE userRanking ( id varchar(32), username varchar(32) , timeInSeconds integer, map integer);")
+	_, err = _db.Exec("CREATE TABLE userRanking ( id varchar(64), userId varchar(64) , timeInSeconds integer, mapId integer);")
 	if err != nil {
 		panic(err)
 	}

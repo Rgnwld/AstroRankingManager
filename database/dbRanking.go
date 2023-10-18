@@ -56,7 +56,7 @@ func GetRankings() []astrotypes.UserTimeObj {
 	for results.Next() {
 		var userTimes astrotypes.UserTimeObj
 
-		err = results.Scan(&userTimes.Id, &userTimes.Username, &userTimes.TimeInSeconds, &userTimes.Map)
+		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.Map)
 
 		if err != nil {
 			panic(err.Error())
@@ -68,7 +68,39 @@ func GetRankings() []astrotypes.UserTimeObj {
 	return times
 }
 
-func GetSpecificRanking(id string) astrotypes.UserTimeObj {
+func GetRankingByPlayer(playerId string) astrotypes.UserTimeObj {
+
+	_db := OpenUserDBConnection()
+	defer _db.Close()
+
+	_, err := _db.Exec("USE AstroRankings")
+	if err != nil {
+		panic(err)
+	}
+
+	results, err := _db.Query("SELECT * FROM userRanking WHERE userId=?", playerId)
+	if err != nil {
+		panic(err)
+	}
+		
+	var times []astrotypes.UserTimeObj
+
+	for results.Next() {
+		var userTimes astrotypes.UserTimeObj
+
+		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.Map)
+
+		if err != nil {
+			panic(err.Error())
+		}
+
+		times = append(times, userTimes)
+	}
+
+	return times
+}
+
+func GetSpecificRanking(mapId string) astrotypes.UserTimeObj {
 
 	_db := OpenUserDBConnection()
 	defer _db.Close()
