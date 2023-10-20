@@ -2,17 +2,20 @@ package AstroRoutes
 
 import (
 	DBConn "Astro/database"
+	Token "Astro/token"
 	AstroTypes "Astro/types"
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func RankingRoutes(router *gin.RouterGroup) {
 
 	router.GET("/ranking/:mapId", mapAllRankingsByMap)
-	router.GET("/ranking", mapAllRankingsByPlayer)
+	router.GET("/ranking", mapPlayerAllRankings)
 	router.POST("/ranking", newRanking)
 	router.PATCH("/ranking/:id", updateRanking)
 	router.DELETE("/ranking/:id", removeRanking)
@@ -20,26 +23,28 @@ func RankingRoutes(router *gin.RouterGroup) {
 
 // region GET
 
-//TestRoute
-func mapAllRankingsByMap(c *gin.Context) {
-	times := DBConn.GetRankings()
+// TestRoute
 
-	c.IndentedJSON(http.StatusOK, times)
-}
-
-func mapAllRankingsByMap(c *gin.Context) {
-	idQuery := c.Param("mapId")
-	times := DBConn.GetRankings()
-
-	c.IndentedJSON(http.StatusOK, times)
-}
-
-func mapAllRankingsByPlayer(c *gin.Context) {
+func mapPlayerAllRankings(c *gin.Context) {
 	//List selected player ranks by time
 	//Order it by map
-	idQuery := c.Param("id")
-	times := DBConn.GetSpecificRanking(idQuery)
+	tknStr := c.Query("token")
 
+	_, claims, err := Token.ParseToken(tknStr)
+	if err != nil {
+		c.IndentedJSON(http.StatusUnauthorized, gin.H{
+			"message": "Invalid Token",
+		})
+	}
+
+	times := DBConn.GetPlayerAllRanking(claims.UserId)
+	c.IndentedJSON(http.StatusOK, times)
+}
+
+func mapAllRankingsByMap(c *gin.Context) {
+	mapId := c.Query("mapId")
+
+	times := DBConn.GetRankingByMap(mapId)
 	c.IndentedJSON(http.StatusOK, times)
 }
 
@@ -49,28 +54,31 @@ func mapAllRankingsByPlayer(c *gin.Context) {
 func newRanking(c *gin.Context) {
 	var newRank AstroTypes.TimeObj
 
-	tkn, claims, err := Token.ParseToken(c.Query("token"))
-
-	if err != nil{
-		.IndentedJSON(http.StatusUnauthorized, gin.H{
+	_, claims, err := Token.ParseToken(c.Query("token"))
+	if err != nil {
+		c.IndentedJSON(http.StatusUnauthorized, gin.H{
 			"message": "Invalid token",
 		})
+		return
 	}
 
 	if err := c.BindJSON(&newRank); err != nil {
+		fmt.Println(err)
+
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
 			"message": "Unexpected Body",
 		})
 		return
 	}
 
-	newRankMetadata := AstroType.UserTimeObj{
-		"timeInSeconds": newRank.timeInSeconds, 
-		"map": newRank.map, 
-		username 
+	newRankMetadata := AstroTypes.UserTimeObj{
+		Id:            uuid.NewString(),
+		UserId:        claims.UserId,
+		TimeInSeconds: newRank.TimeInSeconds,
+		MapId:         newRank.MapId,
 	}
 
-	DBConn.AddRanking(newRank)
+	DBConn.AddRanking(newRankMetadata)
 
 	c.IndentedJSON(http.StatusCreated, gin.H{
 		"message": "ranking was setted",

@@ -31,7 +31,7 @@ func logIn(c *gin.Context) {
 
 	if err != nil {
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{
-			"message": "user not founded",
+			"message": "User: " + cred.Username + " not Found",
 		})
 		return
 	}
@@ -41,13 +41,13 @@ func logIn(c *gin.Context) {
 		fmt.Sprintln(err)
 
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{
-			"message": "something went wrong",
+			"message": "Something went wrong",
 		})
 
 		return
 	}
 
-	token := Token.GetToken(cred)
+	token := Token.GetToken(dbuser)
 
 	c.IndentedJSON(http.StatusOK, gin.H{
 		"token": token,
@@ -79,7 +79,6 @@ func signIn(c *gin.Context) {
 	}
 
 	userid := uuid.NewString()
-	fmt.Println(userid)
 
 	hashedCred := AstroTypes.DBCredentials{
 		Id:             userid,

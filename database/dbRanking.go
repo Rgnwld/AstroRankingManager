@@ -28,8 +28,8 @@ func AddRanking(tobj astrotypes.UserTimeObj) {
 		panic(err)
 	}
 
-	_, err = _db.Exec("INSERT INTO userRanking ( id, username, timeInSeconds, map)  VALUES (?, ?, ?, ?);",
-		tobj.Id, tobj.Username, tobj.TimeInSeconds, tobj.Map)
+	_, err = _db.Exec("INSERT INTO userRanking ( id, userId, timeInSeconds, mapId)  VALUES (?, ?, ?, ?);",
+		tobj.Id, tobj.UserId, tobj.TimeInSeconds, tobj.MapId)
 
 	if err != nil {
 		panic(err)
@@ -56,7 +56,7 @@ func GetRankings() []astrotypes.UserTimeObj {
 	for results.Next() {
 		var userTimes astrotypes.UserTimeObj
 
-		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.Map)
+		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.MapId)
 
 		if err != nil {
 			panic(err.Error())
@@ -68,7 +68,7 @@ func GetRankings() []astrotypes.UserTimeObj {
 	return times
 }
 
-func GetRankingByPlayer(playerId string) astrotypes.UserTimeObj {
+func GetPlayerAllRanking(playerId string) []astrotypes.UserTimeObj {
 
 	_db := OpenUserDBConnection()
 	defer _db.Close()
@@ -82,13 +82,13 @@ func GetRankingByPlayer(playerId string) astrotypes.UserTimeObj {
 	if err != nil {
 		panic(err)
 	}
-		
+
 	var times []astrotypes.UserTimeObj
 
 	for results.Next() {
 		var userTimes astrotypes.UserTimeObj
 
-		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.Map)
+		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.MapId)
 
 		if err != nil {
 			panic(err.Error())
@@ -100,7 +100,7 @@ func GetRankingByPlayer(playerId string) astrotypes.UserTimeObj {
 	return times
 }
 
-func GetSpecificRanking(mapId string) astrotypes.UserTimeObj {
+func GetRankingByMap(mapId string) []astrotypes.UserTimeObj {
 
 	_db := OpenUserDBConnection()
 	defer _db.Close()
@@ -110,23 +110,23 @@ func GetSpecificRanking(mapId string) astrotypes.UserTimeObj {
 		panic(err)
 	}
 
-	results, err := _db.Query("SELECT * FROM userRanking WHERE id=?", id)
+	results, err := _db.Query("SELECT * FROM userRanking WHERE id=?", mapId)
 	if err != nil {
 		panic(err)
 	}
 
-	var times astrotypes.UserTimeObj
+	var times []astrotypes.UserTimeObj
 
 	for results.Next() {
 		var userTimes astrotypes.UserTimeObj
 
-		err = results.Scan(&userTimes.Id, &userTimes.Username, &userTimes.TimeInSeconds, &userTimes.Map)
+		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.MapId)
 
 		if err != nil {
 			panic(err.Error())
 		}
 
-		times = userTimes
+		times = append(times, userTimes)
 	}
 
 	return times
@@ -156,7 +156,7 @@ func PatchRankingTime(id string, tobj astrotypes.TimeObj) (astrotypes.UserTimeOb
 	for results.Next() {
 		var userobj astrotypes.UserTimeObj
 
-		err = results.Scan(&userobj.Id, &userobj.Username, &userobj.TimeInSeconds, &userobj.Map)
+		err = results.Scan(&userobj.Id, &userobj.UserId, &userobj.TimeInSeconds, &userobj.MapId)
 
 		if err != nil {
 			panic(err.Error())
@@ -198,7 +198,7 @@ func DeleteRanking(id string) (astrotypes.UserTimeObj, error) {
 	for results.Next() {
 		var userobj astrotypes.UserTimeObj
 
-		err = results.Scan(&userobj.Id, &userobj.Username, &userobj.TimeInSeconds, &userobj.Map)
+		err = results.Scan(&userobj.Id, &userobj.UserId, &userobj.TimeInSeconds, &userobj.MapId)
 
 		if err != nil {
 			panic(err.Error())

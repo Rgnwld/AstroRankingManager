@@ -14,26 +14,14 @@ import (
 // Create the JWT key used to create the signature
 var JWTKey = []byte("my_secret_key")
 
-// For simplification, we're storing the users information as an in-memory map in our code
-var users = map[string]string{
-	"user1": "password1",
-	"user2": "password2",
-}
-
 // Create the GetToken handler
-func GetToken(creds AstroTypes.Credentials) string {
-
-	expectedPassword, ok := users[creds.Username]
-
-	if !ok || expectedPassword != creds.Password {
-		fmt.Println("Error")
-		return ""
-	}
+func GetToken(creds AstroTypes.DBCredentials) string {
 
 	expirationTime := time.Now().Add(5 * time.Minute)
 
 	claims := &AstroTypes.Claims{
 		Username: creds.Username,
+		UserId:   creds.Id,
 		RegisteredClaims: jwt.RegisteredClaims{
 			// In JWT, the expiry time is expressed as unix milliseconds
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
@@ -43,6 +31,7 @@ func GetToken(creds AstroTypes.Credentials) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	tokenString, err := token.SignedString(JWTKey)
+
 	if err != nil {
 		fmt.Println(http.StatusInternalServerError)
 		return ""
@@ -88,7 +77,7 @@ func AuthenticatedAction() func(c *gin.Context) {
 
 }
 
-func ParseToken(tknStr string) (*jwt.Token, *AstroTypes.Claims,  error) {
+func ParseToken(tknStr string) (*jwt.Token, *AstroTypes.Claims, error) {
 	// Initialize a new instance of `Claims`
 	claims := &AstroTypes.Claims{}
 
