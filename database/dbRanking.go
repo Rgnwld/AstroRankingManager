@@ -110,7 +110,7 @@ func GetRankingByMap(mapId string) []astrotypes.UserTimeObj {
 		panic(err)
 	}
 
-	results, err := _db.Query("SELECT * FROM userRanking WHERE id=?", mapId)
+	results, err := _db.Query("SELECT * FROM userRanking WHERE mapId=?", mapId)
 	if err != nil {
 		panic(err)
 	}

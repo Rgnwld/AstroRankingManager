@@ -42,7 +42,7 @@ func mapPlayerAllRankings(c *gin.Context) {
 }
 
 func mapAllRankingsByMap(c *gin.Context) {
-	mapId := c.Query("mapId")
+	mapId := c.Param("mapId")
 
 	times := DBConn.GetRankingByMap(mapId)
 	c.IndentedJSON(http.StatusOK, times)
