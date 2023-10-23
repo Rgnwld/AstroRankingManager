@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  db:
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-data}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-123qwe}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-123qwe}
+      MYSQL_USER: ${DB_USER:-admin}
+    command: --default-authentication-plugin=mysql_native_password
