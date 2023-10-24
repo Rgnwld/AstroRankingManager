@@ -7,3 +7,11 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-123qwe}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123qwe}
       MYSQL_USER: ${MYSQL_USER:-admin}
+
+  api:
+    environment:
+      MYSQL_DB_HOST: ${MYSQL_DB_HOST:-db}
+      MYSQL_DB_PORT: ${MYSQL_DB_PORT:-3306}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-data}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-123qwe}
+      MYSQL_USER: ${MYSQL_USER:-admin}
