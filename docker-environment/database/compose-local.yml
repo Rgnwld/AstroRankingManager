@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  db:
+    container_name: ${PROJECT_NAME}_db
+    image: ${MYSQL_VERSION}
+    ports:
+      - ${MYSQL_DB_PORT:-3306}:3306
+    volumes:
+      - ./database/data/:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "-p${MYSQL_ROOT_PASSWORD}",
+          "ping",
+          "-h",
+          "localhost",
+        ]
+      interval: 120s
+      timeout: 20s
+      retries: 10
+      start_period: 30s
+    command: --default-authentication-plugin=caching_sha2_password
