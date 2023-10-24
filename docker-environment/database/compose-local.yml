@@ -22,3 +22,4 @@ services:
       timeout: 20s
       retries: 10
       start_period: 30s
+    command: --default-authentication-plugin=caching_sha2_password
