@@ -7,15 +7,16 @@ Please dont use it in production.
 
 - NOTE: Working on ["JWT"](https://jwt.io/) system
 
-### How to start up this manager:
+### 🚧 Requirements to start:
 
 - Need Docker installed in your computer.
   - If you dont have Docker installed, you can get it here [Docker](https://www.docker.com/products/docker-desktop/)
-- ARM uses mysql to persist ranking data. On this repo you can use a DockerFile to create a container with base configurations to use it.
-  - To start the Dockerfile, run in this folder `docker build -t astromanager . ; docker run -dp 127.0.0.1:3306:3306 astromanager`
-  - Make sure that port 3306 is free to use!
-- To run the project, you still need the [go compiler](https://go.dev/learn/)
-- Now that everything is setup, just run `go run ./`
+
+### 🚧 Start up this manager:
+
+To start this manager, run the `make up` command. This command will compile the API and start a database container with all the dependencies necessary for the successful execution of the manager.
+
+For more commands run `make help`
 
 ### Patch Notes
 
