@@ -5,7 +5,7 @@ services:
     container_name: ${PROJECT_NAME}_db
     image: ${MYSQL_VERSION}
     ports:
-      - 3306:3306
+      - ${MYSQL_DB_PORT:-3306}:3306
     volumes:
       - ./database/data/:/var/lib/mysql
     healthcheck:
