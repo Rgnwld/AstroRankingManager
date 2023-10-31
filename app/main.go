@@ -2,6 +2,7 @@ package main
 
 import (
 	DBConn "Astro/database"
+	"Astro/repository"
 	AstroRoutes "Astro/routes"
 	Token "Astro/token"
 	"database/sql"
@@ -13,20 +14,26 @@ import (
 )
 
 var (
-	dbRankingUser = os.Getenv("DB_USER")
-	dbRankingPass = os.Getenv("DB_PASS")
-	dbRankingAddr = os.Getenv("DB_ADDR")
-	dbRankingName = os.Getenv("DB_NAME")
+	dbRankingUser = os.Getenv("DB_RANKING_USER")
+	dbRankingPass = os.Getenv("DB_RANKING_PASS")
+	dbRankingAddr = os.Getenv("DB_RANKING_ADDR")
+	dbRankingName = os.Getenv("DB_RANKING_NAME")
 
-	dbMigrationUser = os.Getenv("DB_USER")
-	dbMigrationPass = os.Getenv("DB_PASS")
-	dbMigrationAddr = os.Getenv("DB_ADDR")
-	dbMigrationName = os.Getenv("DB_NAME")
+	dbUsersUser = os.Getenv("DB_USERS_USER")
+	dbUsersPass = os.Getenv("DB_USERS_PASS")
+	dbUsersAddr = os.Getenv("DB_USERS_ADDR")
+	dbUsersName = os.Getenv("DB_USERS_NAME")
+
+	dbMigrationUser = os.Getenv("DB_MIGRATION_USER")
+	dbMigrationPass = os.Getenv("DB_MIGRATION_PASS")
+	dbMigrationAddr = os.Getenv("DB_MIGRATION_ADDR")
+	dbMigrationName = os.Getenv("DB_MIGRATION_NAME")
 )
 
 var (
 	migrationDbOnce sync.Once
 	rankingDbOnce   sync.Once
+	usersDbOnce     sync.Once
 )
 
 func initRankingDb() *sql.DB {
@@ -42,7 +49,21 @@ func initRankingDb() *sql.DB {
 	return db
 }
 
+func initUsersDb() *sql.DB {
+	var db *sql.DB
+	usersDbOnce.Do(func() {
+		db = DBConn.InitializeDB(
+			dbUsersPass,
+			dbUsersAddr,
+			dbUsersName,
+			dbUsersUser,
+		)
+	})
+	return db
+}
+
 func init() {
+	// apply migrations before run app
 	migrationDbOnce.Do(func() {
 		db := DBConn.InitializeDB(
 			dbMigrationUser,
@@ -58,7 +79,10 @@ func main() {
 	router := gin.Default()
 
 	rankingDb := initRankingDb()
-	rankingRepo := DBConn.NewRankingRepository(rankingDb)
+	rankingRepo := repository.NewRankingRepository(rankingDb)
+
+	usersDb := initUsersDb()
+	usersRepo := repository.NewUserRepository(usersDb)
 
 	authRoutes := router.Group("/auth") //Routes for Authentication
 
@@ -68,10 +92,10 @@ func main() {
 	//region Routes
 	//Public
 	AstroRoutes.TokenRoutes(authRoutes)
-	AstroRoutes.UserRoutes(authRoutes)
+	AstroRoutes.ApplyUserRouters(usersRepo, authRoutes)
 
 	//Authenticated
-	AstroRoutes.RankingRoutes(authenticatedRoutes, rankingRepo)
+	AstroRoutes.ApplyRankingRoutes(authenticatedRoutes, rankingRepo)
 	//endregion
 
 	log.Fatal(router.Run()) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")

@@ -11,6 +11,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+// TODO: remove hard coded secret
 // Create the JWT key used to create the signature
 var JWTKey = []byte("my_secret_key")
 
@@ -51,27 +52,25 @@ func AuthenticatedAction() func(c *gin.Context) {
 			return JWTKey, nil
 		})
 
-		if err != nil {
-			if err == jwt.ErrSignatureInvalid {
+		switch err {
+		case jwt.ErrSignatureInvalid:
+			c.IndentedJSON(http.StatusUnauthorized, gin.H{
+				"response": "Err Signature Invalid",
+			})
+			c.Abort()
+		case nil:
+			if !tkn.Valid {
 				c.IndentedJSON(http.StatusUnauthorized, gin.H{
-					"response": "Err Signature Invalid",
+					"response": "Not Authorized",
 				})
 				c.Abort()
-				return
 			}
+			// TODO: response on happy path
+		default:
 			c.IndentedJSON(http.StatusBadRequest, gin.H{
 				"response": "Bad Request",
 			})
 			c.Abort()
-			return
-		}
-
-		if !tkn.Valid {
-			c.IndentedJSON(http.StatusUnauthorized, gin.H{
-				"response": "Not Authorized",
-			})
-			c.Abort()
-			return
 		}
 	}
 

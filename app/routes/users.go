@@ -1,7 +1,7 @@
 package AstroRoutes
 
 import (
-	DBConn "Astro/database"
+	DBConn "Astro/repository"
 	Token "Astro/token"
 	AstroTypes "Astro/types"
 	"fmt"
@@ -12,34 +12,36 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func UserRoutes(router *gin.RouterGroup) {
-	router.POST("/login", logIn)
-	router.POST("/signin", signIn)
+type usersHandlers struct {
+	userRepo DBConn.UserRepository
 }
 
-func logIn(c *gin.Context) {
+func ApplyUserRouters(userRepo DBConn.UserRepository, router *gin.RouterGroup) {
+	uh := &usersHandlers{userRepo: userRepo}
+
+	router.POST("/login", uh.logIn)
+	router.POST("/signin", uh.signIn)
+}
+
+func (uh *usersHandlers) logIn(c *gin.Context) {
 	var cred AstroTypes.Credentials
 
 	if err := c.BindJSON(&cred); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{
-			"message": "Bad Request",
+			"message": "fail to deserialize",
 		})
 		return
 	}
 
-	dbuser, err := DBConn.GetUser(cred.Username)
-
+	dbuser, err := uh.userRepo.GetUser(c.Request.Context(), cred.Username)
 	if err != nil {
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{
-			"message": "User: " + cred.Username + " not Found",
+			"message": fmt.Sprintf("User: [%s] not Found", cred.Username),
 		})
 		return
 	}
 
 	if !CheckPasswordHash(cred.Password, dbuser.HashedPassword) || err != nil {
-
-		fmt.Sprintln(err)
-
 		c.IndentedJSON(http.StatusUnauthorized, gin.H{
 			"message": "Something went wrong",
 		})
@@ -47,14 +49,12 @@ func logIn(c *gin.Context) {
 		return
 	}
 
-	token := Token.GetToken(dbuser)
-
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"token": token,
+		"token": Token.GetToken(dbuser),
 	})
 }
 
-func signIn(c *gin.Context) {
+func (uh *usersHandlers) signIn(c *gin.Context) {
 	var cred AstroTypes.Credentials
 
 	if err := c.BindJSON(&cred); err != nil {
@@ -86,13 +86,18 @@ func signIn(c *gin.Context) {
 		HashedPassword: hashedPassword,
 	}
 
-	DBConn.CreateUser(hashedCred)
+	err = uh.userRepo.CreateUser(c.Request.Context(), hashedCred)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 
 	c.IndentedJSON(http.StatusCreated, gin.H{
 		"message": "User was created",
 	})
 }
 
+// TODO: move to cipher package in order to decouple and testing stuff
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err
