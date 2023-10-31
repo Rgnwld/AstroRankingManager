@@ -4,49 +4,94 @@ import (
 	astrotypes "Astro/types"
 	"database/sql"
 	"errors"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
-func OpenRankingDBConnection() *sql.DB {
+var (
+	errIdNotFound = errors.New("ID not founded")
+)
 
-	db, err := sql.Open("mysql", Cfg.FormatDSN())
-	if err != nil {
-		panic(err.Error())
-	}
-
-	return db
+type RankingRepository struct {
+	db *sql.DB
 }
 
-func AddRanking(tobj astrotypes.UserTimeObj) {
+func NewRankingRepository(db *sql.DB) *RankingRepository {
+	return &RankingRepository{
+		db: db,
+	}
+}
 
-	_db := OpenUserDBConnection()
-	defer _db.Close()
-
-	_, err := _db.Exec("USE AstroRankings")
-	if err != nil {
-		panic(err)
+func (rr *RankingRepository) AddRanking(tobj astrotypes.UserTimeObj) error {
+	if _, err := rr.db.Exec("USE AstroRankings"); err != nil {
+		return err
 	}
 
-	_, err = _db.Exec("INSERT INTO userRanking ( id, userId, timeInSeconds, mapId)  VALUES (?, ?, ?, ?);",
+	_, err := rr.db.Exec("INSERT INTO userRanking ( id, userId, timeInSeconds, mapId)  VALUES (?, ?, ?, ?);",
 		tobj.Id, tobj.UserId, tobj.TimeInSeconds, tobj.MapId)
-
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
-func GetRankings() []astrotypes.UserTimeObj {
-
-	_db := OpenUserDBConnection()
-	defer _db.Close()
-
-	_, err := _db.Exec("USE AstroRankings")
+func (rr *RankingRepository) GetRankings() ([]astrotypes.UserTimeObj, error) {
+	results, err := rr.db.Query("SELECT * FROM userRanking ORDER BY timeInSeconds ASC")
 	if err != nil {
-		panic(err)
+		return []astrotypes.UserTimeObj{}, err
 	}
 
-	results, err := _db.Query("SELECT * FROM userRanking ORDER BY timeInSeconds ASC")
+	defer func() {
+		_ = results.Close()
+	}()
+
+	var times []astrotypes.UserTimeObj
+
+	for results.Next() {
+		var userTimes astrotypes.UserTimeObj
+
+		if err = results.Scan(
+			&userTimes.Id,
+			&userTimes.UserId,
+			&userTimes.TimeInSeconds,
+			&userTimes.MapId); err != nil {
+			return []astrotypes.UserTimeObj{}, err
+		}
+
+		times = append(times, userTimes)
+	}
+
+	return times, nil
+}
+
+func (rr *RankingRepository) GetPlayerAllRanking(playerId string) ([]astrotypes.UserTimeObj, error) {
+	results, err := rr.db.Query("SELECT * FROM userRanking WHERE userId=?", playerId)
+	if err != nil {
+		return []astrotypes.UserTimeObj{}, err
+	}
+
+	defer func() {
+		_ = results.Close()
+	}()
+
+	var times []astrotypes.UserTimeObj
+
+	for results.Next() {
+		var userTimes astrotypes.UserTimeObj
+
+		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.MapId)
+
+		if err != nil {
+			return []astrotypes.UserTimeObj{}, err
+		}
+
+		times = append(times, userTimes)
+	}
+
+	return times, nil
+}
+
+func (rr *RankingRepository) GetRankingByMap(mapId string) ([]astrotypes.UserTimeObj, error) {
+	results, err := rr.db.Query("SELECT * FROM userRanking WHERE mapId=?", mapId)
 	if err != nil {
 		panic(err)
 	}
@@ -59,99 +104,29 @@ func GetRankings() []astrotypes.UserTimeObj {
 		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.MapId)
 
 		if err != nil {
-			panic(err.Error())
+			return []astrotypes.UserTimeObj{}, err
 		}
 
 		times = append(times, userTimes)
 	}
 
-	return times
+	return times, nil
 }
 
-func GetPlayerAllRanking(playerId string) []astrotypes.UserTimeObj {
-
-	_db := OpenUserDBConnection()
-	defer _db.Close()
-
-	_, err := _db.Exec("USE AstroRankings")
-	if err != nil {
-		panic(err)
-	}
-
-	results, err := _db.Query("SELECT * FROM userRanking WHERE userId=?", playerId)
-	if err != nil {
-		panic(err)
-	}
-
-	var times []astrotypes.UserTimeObj
-
-	for results.Next() {
-		var userTimes astrotypes.UserTimeObj
-
-		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.MapId)
-
-		if err != nil {
-			panic(err.Error())
-		}
-
-		times = append(times, userTimes)
-	}
-
-	return times
-}
-
-func GetRankingByMap(mapId string) []astrotypes.UserTimeObj {
-
-	_db := OpenUserDBConnection()
-	defer _db.Close()
-
-	_, err := _db.Exec("USE AstroRankings")
-	if err != nil {
-		panic(err)
-	}
-
-	results, err := _db.Query("SELECT * FROM userRanking WHERE mapId=?", mapId)
-	if err != nil {
-		panic(err)
-	}
-
-	var times []astrotypes.UserTimeObj
-
-	for results.Next() {
-		var userTimes astrotypes.UserTimeObj
-
-		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.MapId)
-
-		if err != nil {
-			panic(err.Error())
-		}
-
-		times = append(times, userTimes)
-	}
-
-	return times
-}
-
-func PatchRankingTime(id string, tobj astrotypes.TimeObj) (astrotypes.UserTimeObj, error) {
-
+func (rr *RankingRepository) PatchRankingTime(id string, tobj astrotypes.TimeObj) (astrotypes.UserTimeObj, error) {
 	var timeobj astrotypes.UserTimeObj
 
-	_db := OpenUserDBConnection()
-	defer _db.Close()
-
-	_, err := _db.Exec("USE AstroRankings")
+	results, err := rr.db.Query("SELECT * FROM userRanking WHERE id=?", id)
 	if err != nil {
-		panic(err)
-	}
-
-	results, err := _db.Query("SELECT * FROM userRanking WHERE id=?", id)
-	if err != nil {
-		panic(err)
+		return timeobj, err
 	}
 
 	if !results.NextResultSet() {
-		return astrotypes.UserTimeObj{}, errors.New("ID not founded")
+		return astrotypes.UserTimeObj{}, errIdNotFound
 	}
+	defer func() {
+		_ = results.Close()
+	}()
 
 	for results.Next() {
 		var userobj astrotypes.UserTimeObj
@@ -159,37 +134,37 @@ func PatchRankingTime(id string, tobj astrotypes.TimeObj) (astrotypes.UserTimeOb
 		err = results.Scan(&userobj.Id, &userobj.UserId, &userobj.TimeInSeconds, &userobj.MapId)
 
 		if err != nil {
-			panic(err.Error())
+			return astrotypes.UserTimeObj{}, err
 		}
 
 		timeobj = userobj
 	}
 
-	_, err = _db.Exec("UPDATE userRanking SET timeInSeconds=? WHERE id=?", tobj.TimeInSeconds, id)
-
+	_, err = rr.db.Exec("UPDATE userRanking SET timeInSeconds=? WHERE id=?", tobj.TimeInSeconds, id)
 	if err != nil {
-		panic(err)
+		return astrotypes.UserTimeObj{}, err
 	}
 
 	return timeobj, nil
 }
 
-func DeleteRanking(id string) (astrotypes.UserTimeObj, error) {
+func (rr *RankingRepository) DeleteRanking(id string) (astrotypes.UserTimeObj, error) {
 
 	var timeobj astrotypes.UserTimeObj
 
-	_db := OpenUserDBConnection()
-	defer _db.Close()
-
-	_, err := _db.Exec("USE AstroRankings")
+	_, err := rr.db.Exec("USE AstroRankings")
 	if err != nil {
-		panic(err)
+		return timeobj, err
 	}
 
-	results, err := _db.Query("SELECT * FROM userRanking WHERE id=?", id)
+	results, err := rr.db.Query("SELECT * FROM userRanking WHERE id=?", id)
 	if err != nil {
-		panic(err)
+		return timeobj, err
 	}
+
+	defer func() {
+		_ = results.Close()
+	}()
 
 	if !results.NextResultSet() {
 		return astrotypes.UserTimeObj{}, errors.New("ID not founded")
@@ -199,19 +174,16 @@ func DeleteRanking(id string) (astrotypes.UserTimeObj, error) {
 		var userobj astrotypes.UserTimeObj
 
 		err = results.Scan(&userobj.Id, &userobj.UserId, &userobj.TimeInSeconds, &userobj.MapId)
-
 		if err != nil {
-			panic(err.Error())
+			return timeobj, err
 		}
 
 		timeobj = userobj
 	}
 
-	_, err = _db.Exec("DELETE FROM userRanking WHERE id=?", id)
-
+	_, err = rr.db.Exec("DELETE FROM userRanking WHERE id=?", id)
 	if err != nil {
-		panic(err)
+		return timeobj, err
 	}
-
 	return timeobj, nil
 }
