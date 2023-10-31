@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/go-sql-driver/mysql"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -15,7 +16,7 @@ var hErr = func(ctx string, err error) {
 	}
 }
 
-func InitializeDB(user, pass, addr, dbName string) *sql.DB {
+func InitializeDB(user, pass, addr, dbName string, locker *sync.Once) (_db *sql.DB) {
 	cfg := mysql.Config{
 		User:   user,
 		Passwd: pass,
@@ -24,38 +25,18 @@ func InitializeDB(user, pass, addr, dbName string) *sql.DB {
 		DBName: dbName,
 	}
 
-	// TODO: figure out which timeout is better to wait
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer cancel()
+	locker.Do(func() {
+		// TODO: figure out which timeout is better to wait
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
+		var err error
 
-	_db, err := sql.Open("mysql", cfg.FormatDSN())
-	defer func() {
-		hErr("on database setup", err)
+		_db, err = sql.Open("mysql", cfg.FormatDSN())
+		defer func() {
+			hErr("on database setup", err)
+		}()
 
-		_ = _db.Close()
-	}()
-
-	hErr("to ping server", _db.PingContext(ctx))
-	return _db
-}
-
-func MigrationUp(_db *sql.DB) {
-	// TODO: figure out which timeout is better to wait
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
-	defer cancel()
-
-	tx, err := _db.Begin()
-	hErr("on init transaction", err)
-
-	defer hErr("on commit transaction", tx.Commit())
-
-	_, err = tx.ExecContext(ctx, `
-		CREATE DATABASE IF NOT EXISTS AstroRankings;
-
-	   	USE AstroRankings;
-	   	    
-		CREATE TABLE IF NOT EXISTS userRanking ( id varchar(64), userId varchar(64) , timeInSeconds integer, mapId integer);
-
-		CREATE TABLE IF NOT EXISTS userTable ( id varchar(64), username varchar(32), hashedpassword varchar(64));
-	`)
+		hErr("to ping server", _db.PingContext(ctx))
+	})
+	return
 }
