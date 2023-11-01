@@ -6,5 +6,6 @@ import (
 )
 
 func main() {
+
 	log.Fatal(cmd.Execute())
 }
