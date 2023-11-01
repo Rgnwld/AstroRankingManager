@@ -5,8 +5,9 @@ import (
 	"Astro/repository"
 	AstroRoutes "Astro/routes"
 	Token "Astro/token"
-	"github.com/gin-gonic/gin"
 	"sync"
+
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -34,8 +35,8 @@ func (app *app) serveApi() error {
 	rankingRepo := repository.NewRankingRepository(rankingDb)
 	usersRepo := repository.NewUserRepository(usersDb)
 
-	authRoutes := router.Group("/auth") // Routes for Authentication
-
+	publicRoutes := router.Group("/public")
+	authRoutes := router.Group("/auth")        // Routes for Authentication
 	authenticatedRoutes := router.Group("/v1") // Authenticated Route
 	authenticatedRoutes.Use(Token.AuthenticatedAction())
 
@@ -43,6 +44,7 @@ func (app *app) serveApi() error {
 	//Public
 	AstroRoutes.TokenRoutes(authRoutes)
 	AstroRoutes.ApplyUserRouters(usersRepo, authRoutes)
+	AstroRoutes.ApplyNewsRoutes(publicRoutes)
 
 	//Authenticated
 	AstroRoutes.ApplyRankingRoutes(authenticatedRoutes, rankingRepo)
