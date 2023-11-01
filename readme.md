@@ -1,11 +1,9 @@
 # Astro Ranking Manager (ARM)
 
-### This ranking is still in early development and doesnt have any kind of security
+## This ranking is still in early development
 
 This is only for study and early tests in Astro development.
 Please dont use it in production.
-
-- NOTE: Working with ["JWT"](https://jwt.io/) system
 
 ### 🚧 Requirements to start:
 
@@ -20,3 +18,20 @@ This command will compile the API and start a database container with all the de
 For dev proposes, use `make dev` command. It will only build the database container and export its port.
 
 For more commands run `make help`
+
+### 📦 Tools and Features of this project
+  - ### API
+    - [Go](https://go.dev/)
+      - [Gin](https://github.com/gin-gonic/gin) (API)
+      - [Colly](https://github.com/gocolly/colly) (WebScrapper) 
+    - [JWT](https://jwt.io/)
+
+
+  - ### Environment
+    - ### Database
+      - [MySql](https://www.mysql.com/)
+      - [Goose](https://github.com/pressly/goose) (Migrations)
+    - [Docker](https://www.docker.com/)
+      - [Docker-Compose](https://docs.docker.com/compose/)
+      - [Docker-File](https://docs.docker.com/engine/reference/builder/)
+    - [Make](https://makefiletutorial.com/)
