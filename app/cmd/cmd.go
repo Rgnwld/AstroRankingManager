@@ -3,6 +3,7 @@ package cmd
 import (
 	"errors"
 	"flag"
+	"fmt"
 	"os"
 )
 
@@ -38,6 +39,11 @@ var errNotValidCommand = errors.New("Add the subcommand 'api' or 'migration' ")
 // Execute parse and execute commands/subcommands
 // Ref: https://paulgorman.org/technical/golang-flag.txt.html
 func Execute() error {
+
+	if err := LoadDotEnvVariables(); err != nil {
+		fmt.Println(err)
+	}
+
 	var app = &app{subCommands: map[string]*cmdSet{}}
 
 	// Setup api command

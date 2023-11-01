@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/joho/godotenv"
 )
@@ -9,8 +9,7 @@ import (
 func LoadDotEnvVariables() error {
 	err := godotenv.Load("../.env")
 	if err != nil {
-		log.Fatalf("Error loading .env file")
-		return err
+		return fmt.Errorf(".env was not provided.\nUsing ambient values\n%w", err) //Add color
 	}
 
 	return nil
