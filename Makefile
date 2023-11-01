@@ -1,6 +1,7 @@
 # Environment
 
 COMPOSE=docker-environment/docker-compose.yml
+COMPOSEDBONLY=docker-environment/docker-compose-db-only.yml
 DB_LOCAL=docker-environment/database/compose-local.yml
 API_LOCAL=docker-environment/go/compose-local.yml
 
@@ -11,9 +12,13 @@ help:
 	@echo 'down	- Stops and removes defined services'
 	@echo 'logs	- Displays the records (logs) of the defined services '
 
-.PHONY: up
-up:
-	docker-compose -f ${COMPOSE} -f ${DB_LOCAL} -f ${API_LOCAL} up -d --build --remove-orphans
+.PHONY: build
+build:
+	docker-compose -f ${COMPOSE} -f ${DB_LOCAL} -f ${API_LOCAL} --env-file ./.env up -d --build --remove-orphans 
+
+.PHONY: dev
+dev:
+	docker-compose -f ${COMPOSEDBONLY} -f ${DB_LOCAL} --env-file ./.env up -d --build --remove-orphans 
 
 .PHONY: down
 down:
