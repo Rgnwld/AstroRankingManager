@@ -6,5 +6,8 @@ import (
 )
 
 func main() {
+
+	cmd.LoadDotEnvVariables()
+
 	log.Fatal(cmd.Execute())
 }
