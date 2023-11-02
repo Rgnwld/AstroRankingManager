@@ -13,38 +13,31 @@ type NewsObject struct {
 	Content string `json:"content"`
 }
 
+// func FetchNews() ([]NewsObject, error) {
+// 	c := colly.NewCollector()
+
+// 	var newsList []NewsObject
+
+// 	// Find and visit all links
+// 	c.OnHTML("#devlog a[href]", func(e *colly.HTMLElement) {
+// 		newsObj := NewsObject{Url: e.Attr("href"), Title: e.Text}
+// 		fmt.Println(fmt.Sprint(newsObj))
+// 		newsList = append(newsList, newsObj)
+// 	})
+
+// 	c.Visit("https://rgnwld.itch.io/astro")
+
+// 	if len(newsList) <= 0 {
+// 		return nil, errors.New("Something went wrong")
+// 	}
+
+// 	return newsList, nil
+// }
+
 func FetchNews() ([]NewsObject, error) {
 	c := colly.NewCollector()
 
 	var newsList []NewsObject
-
-	// Find and visit all links
-	c.OnHTML("#devlog a[href]", func(e *colly.HTMLElement) {
-		newsObj := NewsObject{Url: e.Attr("href"), Title: e.Text}
-		fmt.Println(fmt.Sprint(newsObj))
-		newsList = append(newsList, newsObj)
-	})
-
-	c.Visit("https://rgnwld.itch.io/astro")
-
-	if len(newsList) <= 0 {
-		return nil, errors.New("Something went wrong")
-	}
-
-	return newsList, nil
-}
-
-func FetchNewsTest() ([]NewsObject, error) {
-	c := colly.NewCollector()
-
-	var newsList []NewsObject
-
-	// Find and visit all links
-	// c.OnHTML("#devlog a[href]", func(e *colly.HTMLElement) {
-	// 	newsObj := NewsObject{Url: e.Attr("href"), Title: e.Text}
-	// 	fmt.Println(fmt.Sprint(newsObj))
-	// 	newsList = append(newsList, newsObj)
-	// })
 
 	c.OnHTML("#devlog a[href]", func(e *colly.HTMLElement) {
 		e.Request.Visit(e.Attr("href"))

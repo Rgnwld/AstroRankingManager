@@ -18,7 +18,7 @@ func hErr(er error) {
 
 func GetNews(c *gin.Context) {
 
-	news, err := webscrapper.FetchNewsTest()
+	news, err := webscrapper.FetchNews()
 
 	if err != nil {
 		hErr(err)
