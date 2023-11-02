@@ -3,11 +3,10 @@
 ## 🚧 This ranking is still in early development
 
 This is only for study and early tests in Astro development. Please dont use it in production.<br />
-The propose of this project is to provide and handle requesitions for the [Astro Game](https://rgnwld.itch.io/astro).<br />Such as:
+The propose of this project is to provide and handle requisitions of the [Astro Game](https://rgnwld.itch.io/astro).<br />Such as:
 - Handle game times.
 - Rank the players by their times in each map.
 - Provide informations about the game news.
-
 
 ## 🚧 Requirements to start:
 
@@ -21,7 +20,7 @@ This command will compile the API and start a database container with all the de
 For dev proposes, use `make dev` command. It will only build the database container and export its port.<br />
 For more commands run `make help`
 
-## 📦 Tools and Features of this project
+## 📦 Current Tools and Features of this project
   ### API
   - [Go](https://go.dev/)
     - [Gin](https://github.com/gin-gonic/gin) (API)
