@@ -3,6 +3,7 @@ package webscrapper
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/gocolly/colly"
 )
@@ -34,10 +35,18 @@ type NewsObject struct {
 // 	return newsList, nil
 // }
 
+var newsList []NewsObject
+var nextReq (time.Time)
+
 func FetchNews() ([]NewsObject, error) {
 	c := colly.NewCollector()
 
-	var newsList []NewsObject
+	if len(newsList) > 0 && nextReq.After(time.Now()) {
+		fmt.Println("Using cached news")
+		return newsList, nil
+	}
+
+	var newsListAux []NewsObject
 
 	c.OnHTML("#devlog a[href]", func(e *colly.HTMLElement) {
 		e.Request.Visit(e.Attr("href"))
@@ -46,14 +55,18 @@ func FetchNews() ([]NewsObject, error) {
 	c.OnHTML(".primary_column", func(e *colly.HTMLElement) {
 		newsObj := NewsObject{Url: e.Request.URL.String(), Title: e.ChildText(".post_header>h1"), Content: e.ChildText(".post_body")}
 		fmt.Println(fmt.Sprint(newsObj))
-		newsList = append(newsList, newsObj)
+		newsListAux = append(newsListAux, newsObj)
 	})
 
 	c.Visit("https://rgnwld.itch.io/astro")
 
-	if len(newsList) <= 0 {
+	if len(newsListAux) <= 0 {
 		return nil, errors.New("Something went wrong")
 	}
+
+	newsList = newsListAux
+
+	nextReq = time.Now().Add(5 * time.Minute)
 
 	return newsList, nil
 }
