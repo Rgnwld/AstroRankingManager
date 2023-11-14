@@ -2,24 +2,42 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import LoginPage from "./routes/Login";
-import App from "./App";
-
+import HomePage from "./routes/Home";
+import "react-toastify/dist/ReactToastify.css";
 import "./assets/styles/main.css";
+import { ToastContainer } from "react-toastify";
+import { PlayerProvider } from "./hooks/userHooks";
+import MapPage from "./routes/Map";
 
 const router = createBrowserRouter([
   {
-    path: "home/",
-    element: <App />,
+    path: "/home",
+    element: <HomePage />,
   },
   {
     path: "/login",
     element: <LoginPage />,
+  },
+  {
+    path: "/map/:id",
+    element: <MapPage />,
+    
   },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <PlayerProvider>
+      <ToastContainer
+        position="top-left"
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        theme="colored"
+        hideProgressBar
+      />
+      <RouterProvider router={router} />
+    </PlayerProvider>
   </React.StrictMode>
 );
