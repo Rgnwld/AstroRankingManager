@@ -36,7 +36,8 @@ function MapItem({ mapId }) {
   const nav = useNavigate()
   
   function Redirect(){
-   nav("/map/"+mapId)
+
+   nav("/map/" +  (mapList.findIndex(x => x === mapId) + 1))
   }
 
   return <div onClick={Redirect} className="mapItem">{mapId}</div>;

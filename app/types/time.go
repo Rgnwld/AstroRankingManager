@@ -7,6 +7,13 @@ type UserTimeObj struct {
 	MapId         int    `json:"mapId" binding:"required"`
 }
 
+type UserNameTimeObj struct {
+	Id            string `json:"id" binding:"required"`
+	Username      string `json:"username" binding:"required"`
+	TimeInSeconds int    `json:"timeInSeconds" binding:"required"`
+	MapId         int    `json:"mapId" binding:"required"`
+}
+
 /*
 	NOTE: Remove TimeInSeconds && MapId from UserTimeObj and replace it with TimeObj struct
 

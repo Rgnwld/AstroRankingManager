@@ -15,7 +15,7 @@ type RankingRepository interface {
 	AddRanking(ctx context.Context, u astrotypes.UserTimeObj) error
 	GetRankings(ctx context.Context) ([]astrotypes.UserTimeObj, error)
 	GetPlayerAllRanking(ctx context.Context, playerId string) ([]astrotypes.UserTimeObj, error)
-	GetRankingByMap(ctx context.Context, mapId string) ([]astrotypes.UserTimeObj, error)
+	GetRankingByMap(ctx context.Context, mapId string) ([]astrotypes.UserNameTimeObj, error)
 	PatchRankingTime(ctx context.Context, id string, tobj astrotypes.TimeObj) (astrotypes.UserTimeObj, error)
 	DeleteRanking(ctx context.Context, id string) (astrotypes.UserTimeObj, error)
 }
@@ -91,18 +91,18 @@ func (rr *rankingRepository) GetPlayerAllRanking(ctx context.Context, playerId s
 	return times, nil
 }
 
-func (rr *rankingRepository) GetRankingByMap(ctx context.Context, mapId string) ([]astrotypes.UserTimeObj, error) {
-	var times []astrotypes.UserTimeObj
-	results, err := rr.db.QueryContext(ctx, "SELECT * FROM userRanking WHERE mapId=?", mapId)
+func (rr *rankingRepository) GetRankingByMap(ctx context.Context, mapId string) ([]astrotypes.UserNameTimeObj, error) {
+	var times []astrotypes.UserNameTimeObj
+	results, err := rr.db.QueryContext(ctx, "SELECT  r.id, u.username AS username, r.timeInSeconds , r.mapId FROM AstroRankings.userTable AS u JOIN AstroRankings.userRanking AS r ON r.userId=u.id WHERE mapId=?", mapId)
 	if err != nil {
 		return times, err
 	}
 	defer results.Close()
 
 	for results.Next() {
-		var userTimes astrotypes.UserTimeObj
+		var userTimes astrotypes.UserNameTimeObj
 
-		err = results.Scan(&userTimes.Id, &userTimes.UserId, &userTimes.TimeInSeconds, &userTimes.MapId)
+		err = results.Scan(&userTimes.Id, &userTimes.Username, &userTimes.TimeInSeconds, &userTimes.MapId)
 
 		if err != nil {
 			return times, err

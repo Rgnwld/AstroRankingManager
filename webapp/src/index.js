@@ -19,7 +19,7 @@ const router = createBrowserRouter([
     element: <LoginPage />,
   },
   {
-    path: "/map/:id",
+    path: "/map/:mapId",
     element: <MapPage />,
     
   },
@@ -27,7 +27,7 @@ const router = createBrowserRouter([
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
+  <>
     <PlayerProvider>
       <ToastContainer
         position="top-left"
@@ -39,5 +39,5 @@ root.render(
       />
       <RouterProvider router={router} />
     </PlayerProvider>
-  </React.StrictMode>
+  </>
 );
