@@ -1,11 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import secondsToTime from "../Aux/time";
 
 export default function ItemList({ info }) {
   const { id, username, timeInMiliSeconds } = info;
+  const [gameTime,setGameTime]=useState("");
+
+  useEffect(() => {
+    setGameTime(secondsToTime(timeInMiliSeconds))
+  }, [info])
+
 
   return (
     <ol className="itemObject">
-      <span>{username}:</span> <span>{timeInMiliSeconds}</span>
+       <span>{gameTime}</span> - <span>{username}</span>
     </ol>
   );
 }

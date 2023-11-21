@@ -18,6 +18,7 @@ import jscookie from "js-cookie";
 const router = createBrowserRouter([
   {
     path: "login",
+    loader: CheckAccess,
     element: <LoginPage />,
   },
   {
@@ -49,6 +50,13 @@ async function ValidateAccessToken(e) {
   }
 
   return null;
+}
+
+async function CheckAccess(e) {
+  if(jscookie.get("access_token") != null){
+    return redirect("/v1/home")
+  }
+  else return null;
 }
 
 export default function Routes() {

@@ -125,6 +125,19 @@ function LoginPage() {
       });
   }
 
+  function CreateUser() {
+    toast(
+      <>
+        <strong>Play the game!</strong><br/>Click{" "}
+        <a href="https://rgnwld.itch.io/astro" target="_blank">
+          Here
+        </a>{" "}
+        to access it
+      </>,
+      { type: "info", closeButton: true, closeOnClick: false, autoClose: false }
+    );
+  }
+
   return (
     <div className="basePage loginPage">
       <form className="loginContainer" onSubmit={Submit}>
@@ -160,7 +173,9 @@ function LoginPage() {
             </button>
           </div>
           <div className="forgotPass">
-            <a href="#">New here?</a>
+            <a href="#" onClick={CreateUser}>
+              New here?
+            </a>
           </div>
         </div>
       </form>
