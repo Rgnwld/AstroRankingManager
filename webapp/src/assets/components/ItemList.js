@@ -1,9 +1,11 @@
-import React from 'react'
+import React from "react";
 
 export default function ItemList({ info }) {
-    const {id,username, timeInSeconds} = info
+  const { id, username, timeInMiliSeconds } = info;
 
   return (
-    <div>{username} - {timeInSeconds}</div>
-  )
+    <ol className="itemObject">
+      <span>{username}:</span> <span>{timeInMiliSeconds}</span>
+    </ol>
+  );
 }

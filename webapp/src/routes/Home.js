@@ -25,7 +25,7 @@ function HomePage() {
 
       <div className="content">
         {mapList.map((el) => (
-          <MapItem mapId={el} key={el}/>
+          <MapItem mapId={el} key={el} />
         ))}
       </div>
     </div>
@@ -33,14 +33,17 @@ function HomePage() {
 }
 
 function MapItem({ mapId }) {
-  const nav = useNavigate()
-  
-  function Redirect(){
+  const nav = useNavigate();
 
-   nav("/map/" +  (mapList.findIndex(x => x === mapId) + 1))
+  function Redirect() {
+    nav("/v1/map/" + (mapList.findIndex((x) => x === mapId) + 1));
   }
 
-  return <div onClick={Redirect} className="mapItem">{mapId}</div>;
+  return (
+    <div onClick={Redirect} className="mapItem">
+      {mapId}
+    </div>
+  );
 }
 
 export default HomePage;

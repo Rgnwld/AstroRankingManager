@@ -10,8 +10,6 @@ export default function Header() {
   const nav = useNavigate();
 
   function LogOut() {
-    jscookie.remove("username");
-    jscookie.remove("access_token");
     toast(<>Thanks for coming by.<br/> See you around!</>, {
       type: "info",
       icon: "👋🏼",
@@ -22,6 +20,8 @@ export default function Header() {
     });
 
     setTimeout((e) => {
+      jscookie.remove("username");
+    jscookie.remove("access_token");
       nav("/login");
     }, 1000);
   }

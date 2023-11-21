@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../assets/styles/basePage.css";
-import "./styles/Home.css";
+import "./styles/Map.css";
+
 import Header from "../assets/components/Header";
 import jscookie from "js-cookie";
 import axios from "axios";
@@ -22,9 +23,9 @@ export const mapList = [
 ];
 
 function MapPage() {
-  const {mapId} = useParams();
+  const { mapId } = useParams();
 
-  const [mapInfo, setMapInfo] = useState([])
+  const [mapInfo, setMapInfo] = useState([]);
 
   async function GetMapInfo() {
     const res = await axios.get(
@@ -34,13 +35,11 @@ function MapPage() {
         jscookie.get("access_token")
     );
 
-    setMapInfo(res.data)
+    setMapInfo(res?.data);
   }
 
   useEffect(() => {
-    console.log("test")
     try {
-      console.log(mapId)
       GetMapInfo();
     } catch (e) {
       console.error(e);
@@ -48,12 +47,18 @@ function MapPage() {
   }, []);
 
   return (
-    <div className="basePage homePage">
+    <div className="basePage mapPage">
       <Header />
-      {mapInfo.map(e => 
-        <ItemList info={e} key={e.id}/>
-      )}
-      <div className="content"></div>
+
+      <div className="content">
+        <li>
+          {mapInfo != null ? (
+            mapInfo.map((e) => <ItemList info={e} key={e.id} />)
+          ) : (
+            <></>
+          )}
+        </li>
+      </div>
     </div>
   );
 }

@@ -55,7 +55,7 @@ function LoginPage() {
         jscookie.set("username", userInfo.user);
 
         setTimeout(() => {
-          nav("/home");
+          nav("/v1/home");
         }, 500);
       })
       .catch((err) => {

@@ -18,7 +18,7 @@ var JWTKey = []byte("my_secret_key")
 // Create the GetToken handler
 func GetToken(creds AstroTypes.DBCredentials) string {
 
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(time.Hour)
 
 	claims := &AstroTypes.Claims{
 		Username: creds.Username,
