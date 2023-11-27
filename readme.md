@@ -21,6 +21,11 @@ For dev proposes, use `make dev` command. It will only build the database contai
 For more commands run `make help`
 
 ## 📦 Current Tools and Features of this project
+  ### WebApp
+  - [HTML5](https://html.spec.whatwg.org/)
+  - [Javascript](https://www.javascript.com/)
+    - [React](https://react.dev/)
+  
   ### API
   - [Go](https://go.dev/)
     - [Gin](https://github.com/gin-gonic/gin) (API)
