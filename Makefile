@@ -14,7 +14,7 @@ help:
 	@printf '\ndev	- Start services'
 	@printf '\ndb	- Start database container for local development'
 	@printf '\ndown	- Stops and removes defined services'
-	@printf '\nlogs	- Displays the records (logs) of the defined services '
+	@printf '\nlogs	- Displays records (logs) of the last 60 defined service lines '
 
 .PHONY: build
 build:
@@ -34,5 +34,5 @@ down:
 
 .PHONY: logs
 logs:
-	docker-compose -f ${COMPOSE} -f ${DB_LOCAL} -f ${API_LOCAL} logs
+	docker-compose -f ${COMPOSE} -f ${DB_LOCAL} -f ${API_LOCAL} -f --tail 60
 
