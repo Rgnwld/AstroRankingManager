@@ -11,6 +11,7 @@ help:
 	@printf '\nYou can see more about the .env in the sample.env\n'
 	@printf '\n\033[mhelp	- Displays information about available commands.'
 	@printf '\nbuild	- Build services'
+	@printf '\up	- Start services attach'
 	@printf '\ndev	- Start services'
 	@printf '\ndb	- Start database container for local development'
 	@printf '\ndown	- Stops and removes defined services'
@@ -20,9 +21,13 @@ help:
 build:
 	docker-compose -f ${COMPOSE} -f ${DB_LOCAL} -f ${API_LOCAL} build --no-cache
 
+.PHONY: up
+up:
+	docker-compose -f ${COMPOSE} -f ${DB_LOCAL} -f ${API_LOCAL} --env-file .env up -d --build --remove-orphans
+
 .PHONY: dev
 dev:
-	docker-compose -f ${COMPOSE} -f ${DB_LOCAL} -f ${API_LOCAL} --env-file .env up -d --build --remove-orphans
+	docker-compose -f ${COMPOSE} -f ${DB_LOCAL} -f ${API_LOCAL} --env-file .env up --build --remove-orphans
 
 .PHONY: db
 db:
