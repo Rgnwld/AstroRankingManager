@@ -8,10 +8,6 @@ services:
       - ${MYSQL_DB_PORT:-3306}:3306
     volumes:
       - ./database/data/:/var/lib/mysql
-    # setup envs like:
-    # MYSQL_ROOT_PASSWORD
-    # MYSQL_ALLOW_EMPTY_PASSWORD
-    # MYSQL_RANDOM_ROOT_PASSWORD
     healthcheck:
       test:
         [
