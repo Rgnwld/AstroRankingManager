@@ -3,8 +3,7 @@ version: "3.8"
 services:
   db:
     container_name: ${PROJECT_NAME}_db
-    # TODO: use variable just for image tag, not image name
-    image: ${MYSQL_VERSION}
+    image: mysql:${MYSQL_VERSION:-latest}
     ports:
       - ${MYSQL_DB_PORT:-3306}:3306
     volumes:
