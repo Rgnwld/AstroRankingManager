@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: ../
+      dockerfile: ./docker-environment/go/Dockerfile
+      target: developer
+    container_name: ${PROJECT_NAME}_api
+    ports:
+      - 8080:8080
+    volumes:
+      - ../app/:/app/
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 120s
+      timeout: 20s
+      retries: 10
+      start_period: 30s
+    command: ["sh", "-c", "go run main.go"]

@@ -1,7 +1,7 @@
 package AstroRoutes
 
 import (
-	DBConn "Astro/database"
+	DBConn "Astro/repository"
 	Token "Astro/token"
 	AstroTypes "Astro/types"
 	"fmt"
@@ -12,20 +12,25 @@ import (
 	"github.com/google/uuid"
 )
 
-func RankingRoutes(router *gin.RouterGroup) {
+type RankingHandlers struct {
+	rankingRepo DBConn.RankingRepository
+}
 
-	router.GET("/ranking/:mapId", mapAllRankingsByMap)
-	router.GET("/ranking", mapPlayerAllRankings)
-	router.POST("/ranking", newRanking)
-	router.PATCH("/ranking/:id", updateRanking)
-	router.DELETE("/ranking/:id", removeRanking)
+func ApplyRankingRoutes(router *gin.RouterGroup, rankingRepo DBConn.RankingRepository) {
+	hs := RankingHandlers{rankingRepo: rankingRepo}
+
+	router.GET("/ranking/:mapId", hs.mapAllRankingsByMap)
+	router.GET("/ranking", hs.mapPlayerAllRankings)
+	router.POST("/ranking", hs.newRanking)
+	router.PATCH("/ranking/:id", hs.updateRanking)
+	router.DELETE("/ranking/:id", hs.removeRanking)
 }
 
 // region GET
 
 // TestRoute
 
-func mapPlayerAllRankings(c *gin.Context) {
+func (ah *RankingHandlers) mapPlayerAllRankings(c *gin.Context) {
 	//List selected player ranks by time
 	//Order it by map
 	tknStr := c.Query("token")
@@ -37,21 +42,30 @@ func mapPlayerAllRankings(c *gin.Context) {
 		})
 	}
 
-	times := DBConn.GetPlayerAllRanking(claims.UserId)
+	times, err := ah.rankingRepo.GetPlayerAllRanking(c.Request.Context(), claims.UserId)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 	c.IndentedJSON(http.StatusOK, times)
 }
 
-func mapAllRankingsByMap(c *gin.Context) {
+func (ah *RankingHandlers) mapAllRankingsByMap(c *gin.Context) {
 	mapId := c.Param("mapId")
 
-	times := DBConn.GetRankingByMap(mapId)
+	times, err := ah.rankingRepo.GetRankingByMap(c.Request.Context(), mapId)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, times)
 }
 
 // endregion
 
 // region POST
-func newRanking(c *gin.Context) {
+func (ah *RankingHandlers) newRanking(c *gin.Context) {
 	var newRank AstroTypes.TimeObj
 
 	_, claims, err := Token.ParseToken(c.Query("token"))
@@ -78,7 +92,11 @@ func newRanking(c *gin.Context) {
 		MapId:         newRank.MapId,
 	}
 
-	DBConn.AddRanking(newRankMetadata)
+	err = ah.rankingRepo.AddRanking(c.Request.Context(), newRankMetadata)
+	if err != nil {
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
 
 	c.IndentedJSON(http.StatusCreated, gin.H{
 		"message": "ranking was setted",
@@ -89,7 +107,7 @@ func newRanking(c *gin.Context) {
 //endregion
 
 // region PATCH
-func updateRanking(c *gin.Context) {
+func (ah *RankingHandlers) updateRanking(c *gin.Context) {
 
 	id := c.Param("id")
 	var updateRank AstroTypes.TimeObj
@@ -99,10 +117,9 @@ func updateRanking(c *gin.Context) {
 		return
 	}
 
-	result, err := DBConn.PatchRankingTime(id, updateRank)
-
+	result, err := ah.rankingRepo.PatchRankingTime(c.Request.Context(), id, updateRank)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		c.IndentedJSON(http.StatusOK, gin.H{"message": "ID not founded"})
 		return
 	}
@@ -113,14 +130,13 @@ func updateRanking(c *gin.Context) {
 //endregion
 
 // region DELETE
-func removeRanking(c *gin.Context) {
+func (ah *RankingHandlers) removeRanking(c *gin.Context) {
 
 	id := c.Param("id")
 
-	result, err := DBConn.DeleteRanking(id)
-
+	result, err := ah.rankingRepo.DeleteRanking(c.Request.Context(), id)
 	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
+		_ = c.AbortWithError(http.StatusInternalServerError, err)
 		c.IndentedJSON(http.StatusOK, gin.H{"message": "ID not founded"})
 		return
 	}
