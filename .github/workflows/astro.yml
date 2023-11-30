@@ -3,6 +3,8 @@ name: Github CI
 on:
   push:
     branches: [ "main", "develop", "github-workflow" ]
+  pull_request:
+    branches: [ "main", "develop", "github-workflow" ]
 
 jobs:
   build:
