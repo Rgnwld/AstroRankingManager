@@ -25,4 +25,4 @@ jobs:
           context: ./docker-environment/go
           file: ./Dockerfile
           push: false
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/AstroRankingManager:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME:-astro }}/AstroRankingManager:latest
