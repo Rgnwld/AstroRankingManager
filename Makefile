@@ -11,11 +11,11 @@ help:
 	@printf '\nYou can see more about the .env in the sample.env\n'
 	@printf '\n\033[mhelp	- Displays information about available commands.'
 	@printf '\nbuild	- Build services'
-	@printf '\up	- Start services attach'
+	@printf '\nup	- Start services attach'
 	@printf '\ndev	- Start services'
 	@printf '\ndb	- Start database container for local development'
 	@printf '\ndown	- Stops and removes defined services'
-	@printf '\nlogs	- Displays records (logs) of the last 60 defined service lines '
+	@printf '\nlogs	- Displays records (logs) of the last 60 defined service lines'
 
 .PHONY: build
 build:
