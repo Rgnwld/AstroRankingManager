@@ -59,6 +59,23 @@ function LoginPage() {
         }, 500);
       })
       .catch((err) => {
+        if (err.code == "ERR_NETWORK") {
+          toast.update(id, {
+            render: (
+              <>
+                We are facing internal error problems. <br />
+                Please contact the support service.
+              </>
+            ),
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+            pauseOnFocusLoss: false,
+            pauseOnHover: false,
+          });
+          return;
+        }
+
         if (err.response.status >= 500)
           toast.update(id, {
             render: (
@@ -128,7 +145,9 @@ function LoginPage() {
   function CreateUser() {
     toast(
       <>
-        <strong>Play the game!</strong><br/>Click{" "}
+        <strong>Play the game!</strong>
+        <br />
+        Click{" "}
         <a href="https://rgnwld.itch.io/astro" target="_blank">
           Here
         </a>{" "}

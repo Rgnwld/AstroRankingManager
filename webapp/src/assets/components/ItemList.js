@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import secondsToTime from "../Aux/time";
+import secondsToTime from "../aux/time";
 
 export default function ItemList({ info }) {
   const { id, username, timeInMiliSeconds } = info;

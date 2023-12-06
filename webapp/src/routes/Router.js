@@ -46,6 +46,7 @@ async function ValidateAccessToken(e) {
     toast("Your token has expired", {
       type: "error",
     });
+    jscookie.remove("access_token")
     return redirect("/login");
   }
 
