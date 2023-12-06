@@ -7,7 +7,7 @@ import (
 )
 
 func LoadDotEnvVariables() error {
-	err := godotenv.Load("../.env")
+	err := godotenv.Load("./.env")
 	if err != nil {
 		return fmt.Errorf(".env was not provided.\nUsing ambient values\n%w", err) //Add color
 	}

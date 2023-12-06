@@ -1,10 +1,17 @@
 package AstroTypes
 
 type UserTimeObj struct {
-	Id            string `json:"id" binding:"required"`
-	UserId        string `json:"userId" binding:"required"`
-	TimeInSeconds int    `json:"timeInSeconds" binding:"required"`
-	MapId         int    `json:"mapId" binding:"required"`
+	Id                string `json:"id" binding:"required"`
+	UserId            string `json:"userId" binding:"required"`
+	TimeInMiliSeconds int    `json:"timeInMiliSeconds" binding:"required"`
+	MapId             int    `json:"mapId" binding:"required"`
+}
+
+type UserNameTimeObj struct {
+	Id                string `json:"id" binding:"required"`
+	Username          string `json:"username" binding:"required"`
+	TimeInMiliSeconds int    `json:"timeInMiliSeconds" binding:"required"`
+	MapId             int    `json:"mapId" binding:"required"`
 }
 
 /*
@@ -24,6 +31,6 @@ type UserTimeObj struct {
 // }
 
 type TimeObj struct {
-	TimeInSeconds int `json:"timeInSeconds" binding:"required"`
-	MapId         int `json:"mapId" binding:"required"`
+	TimeInMiliSeconds int `json:"timeInMiliSeconds" binding:"required"`
+	MapId             int `json:"mapId" binding:"required"`
 }

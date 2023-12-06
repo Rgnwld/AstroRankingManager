@@ -9,15 +9,14 @@ import (
 )
 
 func TokenRoutes(router *gin.RouterGroup) {
-
-	router.GET("/token", TestToken)
+	router.GET("/token", ValidateToken)
 }
 
-func TestToken(c *gin.Context) {
+func ValidateToken(c *gin.Context) {
 
 	tknStr := c.Query("token")
 
-	tkn, claims, err := Token.ParseToken(tknStr)
+	tkn, _, err := Token.ParseToken(tknStr)
 
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
@@ -40,6 +39,6 @@ func TestToken(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{
-		"message": "Welcome " + claims.Username,
+		"message": "Token is valid",
 	})
 }

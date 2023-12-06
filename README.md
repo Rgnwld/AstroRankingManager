@@ -22,6 +22,11 @@ For development proposals using only the database, run the `make db` command. It
 For more commands run `make help`.
 
 ## 📦 Current Tools and Features of this project
+  ### WebApp
+  - [HTML5](https://html.spec.whatwg.org/)
+  - [Javascript](https://www.javascript.com/)
+    - [React](https://react.dev/)
+  
   ### API
   - [Go](https://go.dev/)
     - [Gin](https://github.com/gin-gonic/gin) (API)

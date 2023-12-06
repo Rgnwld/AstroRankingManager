@@ -86,10 +86,10 @@ func (ah *RankingHandlers) newRanking(c *gin.Context) {
 	}
 
 	newRankMetadata := AstroTypes.UserTimeObj{
-		Id:            uuid.NewString(),
-		UserId:        claims.UserId,
-		TimeInSeconds: newRank.TimeInSeconds,
-		MapId:         newRank.MapId,
+		Id:                uuid.NewString(),
+		UserId:            claims.UserId,
+		TimeInMiliSeconds: newRank.TimeInMiliSeconds,
+		MapId:             newRank.MapId,
 	}
 
 	err = ah.rankingRepo.AddRanking(c.Request.Context(), newRankMetadata)
@@ -124,7 +124,7 @@ func (ah *RankingHandlers) updateRanking(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "Time Updated from: " + strconv.Itoa(result.TimeInSeconds) + " to: " + strconv.Itoa(updateRank.TimeInSeconds)})
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Time Updated from: " + strconv.Itoa(result.TimeInMiliSeconds) + " to: " + strconv.Itoa(updateRank.TimeInMiliSeconds)})
 }
 
 //endregion
