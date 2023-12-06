@@ -1,0 +1,16 @@
+:root{
+  --dark-color: #333;
+  --unfocus-dark-color: #888;
+  --unfocus-main-color: #042940
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  width: 100vw;
+  font-family: 'Roboto', sans-serif;
+
+  color: var(--dark-color);
+}
