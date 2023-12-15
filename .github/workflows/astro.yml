@@ -13,6 +13,7 @@ jobs:
       run: |
         make build
         docker image ls
+        docker run --rm hello-world
 
 # name: Github CI
 
